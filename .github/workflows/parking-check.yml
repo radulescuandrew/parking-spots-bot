@@ -1,0 +1,36 @@
+name: Parking Spot Monitor
+
+on:
+  schedule:
+    # Daily at 07:30 UTC (adjust for your timezone)
+    - cron: "30 7 * * *"
+    # Weekly Monday at 08:00 UTC
+    - cron: "0 8 * * MON"
+  workflow_dispatch: {} # allow manual trigger
+
+jobs:
+  check-parking:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install postmark
+
+      - name: Run script (daily or weekly)
+        env:
+          POSTMARK_TOKEN: ${{ secrets.POSTMARK_TOKEN }}
+          MAIL_FROM: "andrew.radulescu@wearetribus.com"
+          MAIL_TO: "andrew.radulescu@wearetribus.com, andreeamaria10p@gmail.com, toni.radulescu@wearetribus.com"
+        run: |
+          if [ "$(date +%u)" -eq 1 ] && [ "$(date +%H)" -eq 8 ]; then
+            node index.js --heartbeat
+          else
+            node index.js
+          fi
