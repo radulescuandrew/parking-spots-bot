@@ -6,7 +6,12 @@ on:
     - cron: "30 7 * * *"
     # Weekly Monday at 08:00 UTC
     - cron: "0 8 * * MON"
-  workflow_dispatch: {} # allow manual trigger
+  workflow_dispatch: 
+    inputs:
+      heartbeat:
+        description: "Force heartbeat run"
+        required: false
+        default: "false"
 
 jobs:
   check-parking:
@@ -29,7 +34,8 @@ jobs:
           MAIL_FROM: "andrew.radulescu@wearetribus.com"
           MAIL_TO: "andrew.radulescu@wearetribus.com, andreeamaria10p@gmail.com, toni.radulescu@wearetribus.com"
         run: |
-          if [ "$(date +%u)" -eq 1 ] && [ "$(date +%H)" -eq 8 ]; then
+          if [ "${{ github.event.inputs.heartbeat }}" = "true" ] || \
+            ([ "$(date +%u)" -eq 1 ] && [ "$(date +%H)" -eq 8 ]); then
             node index.js --heartbeat
           else
             node index.js
