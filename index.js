@@ -35,7 +35,7 @@ async function sendMail({ subject, htmlBody, textBody }) {
     const res = await fetch(URL, {
       headers: { Accept: "application/json" },
     });
-    const text = await res.text();
+    const text = await res.json();
 
     let payload;
     try {
